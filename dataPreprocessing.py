@@ -1,15 +1,19 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.impute import SimpleImputer
 from sklearn.feature_selection import RFE
+from pandas.plotting import scatter_matrix
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LogisticRegression
 
 dataframe = pd.read_csv('biomech_accel_labels.csv')
 
-# Dropping first column
+# Dropping first column and visualizing the data
 dataframe = dataframe.drop(dataframe.columns[0], axis=1)
+scatter_matrix(dataframe, alpha=0.2, figsize=(15, 15), diagonal='kde')
+plt.show()
 
 # Imputing NaN values with the mean of column
 fill_NaN   = SimpleImputer(missing_values=np.nan, strategy='mean')
@@ -19,7 +23,7 @@ export_csv = imputed_DF.to_csv('biomech_accel_labels_imputed.csv', index=False)
 dataframe = pd.read_csv('biomech_accel_labels_imputed.csv')
 array     = dataframe.values
 
-# Separate the dataframe into input and output components
+# Separate the dataframe into input and target components
 X = array[:,0:11]
 Y = array[:,12]
 
@@ -46,6 +50,9 @@ array = imputed_DF.values
 X     = array[:,0:11]
 Y     = array[:,12]
 
+scatter_matrix(imputed_DF, alpha=0.2, figsize=(10, 10), diagonal='kde')
+plt.show()
+
 # Applying PCA to get Explained Variance Ratio (EVR)
 # Variance Ratio is the ratio between the variance of the principal component and the total variance
 # The higher the EVR, the more important that component is for better prediction
@@ -58,8 +65,8 @@ print(fit.components_)
 # The choice is model can be any standard model like SVC, Random Forest etc.
 model = LogisticRegression()
 
-# The parameter 3 indicates that we want the 3 best features
-rfe = RFE(model, 3)
+# The parameter 5 indicates that we want the 3 best features
+rfe = RFE(model, 5)
 fit = rfe.fit(X, Y)
 print("Num Features: %d" % fit.n_features_)
 print("Selected Features: %s" % fit.support_)
